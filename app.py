@@ -1,118 +1,113 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
 
-# -------------------------------------------------
-# PAGE CONFIG
-# -------------------------------------------------
-
 st.set_page_config(
     page_title="Young Lord Market View",
     page_icon="📈",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
-
-# -------------------------------------------------
-# CUSTOM CSS
-# -------------------------------------------------
 
 st.markdown("""
 <style>
 
-/* Hide Streamlit Header */
-header {
-    visibility:hidden;
+header,[data-testid="stHeader"]{
+display:none !important;
 }
 
-[data-testid="stHeader"] {
-    display:none;
+#MainMenu{
+visibility:hidden;
 }
 
-/* Main Background */
-.stApp {
-    background: linear-gradient(90deg,#00142e,#032a5c);
+.stApp{
+background:linear-gradient(
+90deg,
+#00142e,
+#032a5c
+);
 }
 
-/* Sidebar */
 section[data-testid="stSidebar"]{
-    background:#001634;
+background:linear-gradient(
+180deg,
+#00142e,
+#001d42,
+#00142e
+);
 }
 
 section[data-testid="stSidebar"] *{
-    color:white !important;
+color:white !important;
 }
 
-/* Cards */
-.card{
-    background:#082c57;
-    padding:20px;
-    border-radius:15px;
-    border:1px solid #d4af37;
-}
-
-/* Titles */
-.gold{
-    color:#d4af37;
-}
-
-/* Hero */
-.hero{
-    background:linear-gradient(90deg,#00142e,#032a5c);
-    border:2px solid #d4af37;
-    border-radius:25px;
-    padding:35px;
-    margin-top:10px;
-    margin-bottom:20px;
+.hero-card{
+background:#03244d;
+border:2px solid #d4af37;
+border-radius:25px;
+padding:35px;
+margin-top:20px;
+margin-bottom:20px;
 }
 
 .hero-title{
-    font-size:52px;
-    font-weight:700;
-    color:white;
+font-size:clamp(36px,5vw,60px);
+font-weight:800;
+color:white;
 }
 
 .hero-sub{
-    color:#d4af37;
-    font-size:28px;
-    font-weight:600;
+font-size:clamp(20px,3vw,32px);
+font-weight:700;
+color:#FFD54F;
 }
 
 .hero-desc{
-    color:white;
-    font-size:20px;
+font-size:20px;
+color:white;
 }
 
-/* Metrics */
+h1,h2,h3{
+color:#FFD54F !important;
+font-weight:700 !important;
+}
+
 [data-testid="metric-container"]{
-    background:#082c57;
-    border-radius:15px;
-    padding:15px;
-    border:1px solid #d4af37;
+background:#082c57;
+border:1px solid #d4af37;
+border-radius:15px;
+padding:15px;
 }
 
-/* Selectbox */
-.stSelectbox div[data-baseweb="select"]{
-    background:#082c57 !important;
-    color:white !important;
+img{
+max-width:100%;
+height:auto;
 }
 
-/* Buttons */
-.stButton button{
-    background:#d4af37;
-    color:black;
-    border:none;
-    border-radius:10px;
+@media (max-width:768px){
+
+.hero-title{
+font-size:32px;
+}
+
+.hero-sub{
+font-size:20px;
+}
+
+.hero-desc{
+font-size:15px;
+}
+
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# -------------------------------------------------
-# SIDEBAR
-# -------------------------------------------------
-
 with st.sidebar:
 
-    st.image("images/logo.png", width=180)
+    st.image(
+        "images/logo.png",
+        use_container_width=True
+    )
 
     st.markdown("## Young Lord")
 
@@ -145,14 +140,14 @@ with st.sidebar:
         default_index=0
     )
 
-# -------------------------------------------------
-# HERO BANNER
-# -------------------------------------------------
-
-st.image("images/banner.png", use_container_width=True)
+st.image(
+    "images/banner.png",
+    use_container_width=True
+)
 
 st.markdown("""
-<div class="hero">
+<div class="hero-card">
+
 <div class="hero-title">
 Young Lord Market View
 </div>
@@ -166,16 +161,20 @@ Research • Analyze • Automate
 <div class="hero-desc">
 Professional Market Research & Trading Technology Portal
 </div>
+
 </div>
 """, unsafe_allow_html=True)
+# ==================================================
+# MARKET PULSE DASHBOARD
+# ==================================================
 
-# -------------------------------------------------
-# DASHBOARD
-# -------------------------------------------------
+st.markdown("""
+<h2 style='color:#FFD54F;'>
+📊 Market Pulse Dashboard
+</h2>
+""", unsafe_allow_html=True)
 
-st.markdown("## 📊 Market Pulse Dashboard")
-
-c1,c2,c3,c4 = st.columns(4)
+c1, c2 = st.columns(2)
 
 with c1:
     st.metric(
@@ -191,6 +190,8 @@ with c2:
         "+15%"
     )
 
+c3, c4 = st.columns(2)
+
 with c3:
     st.metric(
         "Leading Sector",
@@ -205,120 +206,215 @@ with c4:
 
 st.divider()
 
-# -------------------------------------------------
+# ==================================================
 # RESEARCH CATEGORIES
-# -------------------------------------------------
+# ==================================================
 
-st.markdown("## 📚 Research Categories")
+st.markdown("""
+<h2 style='color:#FFD54F;'>
+📚 Research Categories
+</h2>
+""", unsafe_allow_html=True)
 
-c1,c2,c3 = st.columns(3)
+r1, r2, r3 = st.columns(3)
 
-with c1:
+with r1:
     st.info("📈 Weekly Nifty Outlook")
-    st.info("🔄 Sector Rotation")
-    st.info("📊 Relative Strength")
+    st.info("🔄 Sector Rotation Analysis")
+    st.info("📊 Relative Strength Analysis")
 
-with c2:
-    st.info("🏢 Fundamental Analysis")
-    st.info("📰 Current Affairs")
-    st.info("💡 Investment Ideas")
+with r2:
+    st.info("💰 Fundamental Analysis")
+    st.info("🌍 Macro & Current Affairs")
+    st.info("⭐ Investment Ideas")
 
-with c3:
-    st.info("📑 Research Reports")
-    st.info("⚙ Professional Services")
-    st.info("📬 Contact")
+with r3:
+    st.info("📄 Research Reports")
+    st.info("📥 Report Downloads")
+    st.info("📝 Market Commentary")
 
-# -------------------------------------------------
-# SERVICES
-# -------------------------------------------------
+st.divider()
 
-st.markdown("## ⚙ Professional Services")
+# ==================================================
+# PROFESSIONAL SERVICES
+# ==================================================
+
+st.markdown("""
+<h2 style='color:#FFD54F;'>
+⚙ Professional Services
+</h2>
+""", unsafe_allow_html=True)
 
 st.success("""
-We also offer end-to-end Strategy Development Services:
+Young Lord Market View provides end-to-end quantitative trading,
+research and automation solutions.
 
-✅ Python Coding
+✅ Python Development
 
-✅ Pine Script Development
+✅ TradingView Pine Script Development
+
+✅ Strategy Development
 
 ✅ API Integration
 
 ✅ Research & Backtesting
 
-✅ Algo Trading Solutions
+✅ Stock Scanners
 
 ✅ Dashboard Development
+
+✅ Algo Trading Solutions
+
+✅ Google Sheets Automation
 
 ✅ Custom Product Development
 
 Tailored to your trading and automation requirements.
 """)
 
-# -------------------------------------------------
+st.divider()
+
+# ==================================================
 # REPORT ARCHIVE
-# -------------------------------------------------
+# ==================================================
 
-st.markdown("## 📂 Report Archive")
+st.markdown("""
+<h2 style='color:#FFD54F;'>
+📂 Report Archive
+</h2>
+""", unsafe_allow_html=True)
 
-report = st.selectbox(
-    "Select Report",
+report_category = st.selectbox(
+    "Select Research Category",
     [
         "Weekly Nifty Outlook",
         "Sector Rotation Analysis",
         "Relative Strength Analysis",
         "Fundamental Analysis",
+        "Macro & Current Affairs",
         "Investment Ideas"
     ]
 )
 
-st.info(f"Selected Report: {report}")
+st.info(f"Selected: {report_category}")
 
-st.button("📥 Download Report")
-
-# -------------------------------------------------
-# LIVE MARKET WIDGETS
-# -------------------------------------------------
-
-st.markdown("## 📈 Live Market Widgets")
-
-st.info("""
-TradingView widgets will be added in the next upgrade.
-""")
-
-# -------------------------------------------------
-# NEWSLETTER
-# -------------------------------------------------
-
-st.markdown("## 📧 Newsletter")
-
-email = st.text_input(
-    "Enter Email Address"
+search_report = st.text_input(
+    "🔎 Search Reports"
 )
 
-st.button("Subscribe")
-
-# -------------------------------------------------
-# CONTACT
-# -------------------------------------------------
-
-st.markdown("## 📞 Contact")
-
-name = st.text_input("Name")
-
-message = st.text_area("Message")
-
-st.button("Send Inquiry")
-
-st.success("""
-WhatsApp Integration Coming Soon
-""")
-
-# -------------------------------------------------
-# FOOTER
-# -------------------------------------------------
+st.button("📥 Download Selected Report")
 
 st.divider()
 
-st.caption(
-    "© Young Lord Market View | Research • Analyze • Automate"
+# ==================================================
+# LIVE MARKET CENTER
+# ==================================================
+
+st.markdown("""
+<h2 style='color:#FFD54F;'>
+📈 Live Market Widgets
+</h2>
+""", unsafe_allow_html=True)
+
+st.info("""
+Upcoming Live Widgets:
+
+• NIFTY
+
+• BANKNIFTY
+
+• NIFTY 500
+
+• Market Heatmap
+
+• Sector Performance
+
+• TradingView Charts
+""")
+
+st.divider()
+
+# ==================================================
+# NEWSLETTER
+# ==================================================
+
+st.markdown("""
+<h2 style='color:#FFD54F;'>
+📧 Newsletter
+</h2>
+""", unsafe_allow_html=True)
+
+newsletter_email = st.text_input(
+    "Enter Email Address"
 )
+
+if st.button("Subscribe"):
+    st.success(
+        "Thank you for subscribing."
+    )
+
+st.divider()
+
+# ==================================================
+# CONTACT
+# ==================================================
+
+st.markdown("""
+<h2 style='color:#FFD54F;'>
+📞 Contact
+</h2>
+""", unsafe_allow_html=True)
+
+contact_name = st.text_input(
+    "Name"
+)
+
+contact_email = st.text_input(
+    "Email"
+)
+
+contact_message = st.text_area(
+    "Message"
+)
+
+if st.button("Send Inquiry"):
+    st.success(
+        "Inquiry submitted successfully."
+    )
+
+st.markdown("""
+### Quick Contact
+
+📧 contact@younglordresearch.com
+
+📱 +91 XXXXXXXXXX
+
+💬 WhatsApp Support
+
+💼 LinkedIn Coming Soon
+""")
+
+st.divider()
+
+# ==================================================
+# FOOTER
+# ==================================================
+
+st.markdown("""
+<center>
+
+<h3 style="color:#FFD54F;">
+Young Lord Market View
+</h3>
+
+<p style="color:white;">
+Research • Analyze • Automate
+</p>
+
+<p style="color:white;">
+Professional Market Research &
+Trading Technology Solutions
+</p>
+
+</center>
+""", unsafe_allow_html=True)
