@@ -1,5 +1,9 @@
 import streamlit as st
-from PIL import Image
+from streamlit_option_menu import option_menu
+
+# -------------------------------------------------
+# PAGE CONFIG
+# -------------------------------------------------
 
 st.set_page_config(
     page_title="Young Lord Market View",
@@ -7,118 +11,167 @@ st.set_page_config(
     layout="wide"
 )
 
-# =========================
+# -------------------------------------------------
 # CUSTOM CSS
-# =========================
+# -------------------------------------------------
 
 st.markdown("""
 <style>
 
-.stApp {
-    background: linear-gradient(
-        90deg,
-        #02152d 0%,
-        #062b52 50%,
-        #02152d 100%
-    );
-    color:white;
+/* Hide Streamlit Header */
+header {
+    visibility:hidden;
 }
 
-h1,h2,h3 {
+[data-testid="stHeader"] {
+    display:none;
+}
+
+/* Main Background */
+.stApp {
+    background: linear-gradient(90deg,#00142e,#032a5c);
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"]{
+    background:#001634;
+}
+
+section[data-testid="stSidebar"] *{
     color:white !important;
 }
 
-[data-testid="stSidebar"] {
-    background-color:#081a33;
-}
-
-.gold {
-    color:#f4c542;
-}
-
-.hero {
-    padding:30px;
-    border-radius:20px;
-    background:rgba(0,0,0,0.25);
-    border:2px solid #f4c542;
-}
-
-.metric-card {
-    background:#0c2447;
+/* Cards */
+.card{
+    background:#082c57;
     padding:20px;
     border-radius:15px;
-    text-align:center;
+    border:1px solid #d4af37;
 }
 
-.service-card {
-    background:#0c2447;
-    padding:20px;
+/* Titles */
+.gold{
+    color:#d4af37;
+}
+
+/* Hero */
+.hero{
+    background:linear-gradient(90deg,#00142e,#032a5c);
+    border:2px solid #d4af37;
+    border-radius:25px;
+    padding:35px;
+    margin-top:10px;
+    margin-bottom:20px;
+}
+
+.hero-title{
+    font-size:52px;
+    font-weight:700;
+    color:white;
+}
+
+.hero-sub{
+    color:#d4af37;
+    font-size:28px;
+    font-weight:600;
+}
+
+.hero-desc{
+    color:white;
+    font-size:20px;
+}
+
+/* Metrics */
+[data-testid="metric-container"]{
+    background:#082c57;
     border-radius:15px;
-    margin-bottom:10px;
+    padding:15px;
+    border:1px solid #d4af37;
+}
+
+/* Selectbox */
+.stSelectbox div[data-baseweb="select"]{
+    background:#082c57 !important;
+    color:white !important;
+}
+
+/* Buttons */
+.stButton button{
+    background:#d4af37;
+    color:black;
+    border:none;
+    border-radius:10px;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
-# =========================
-# LOAD IMAGES
-# =========================
-
-logo = Image.open("images/logo.png")
-banner = Image.open("images/banner.png")
-
-# =========================
+# -------------------------------------------------
 # SIDEBAR
-# =========================
+# -------------------------------------------------
 
-st.sidebar.image(logo, width=120)
+with st.sidebar:
 
-st.sidebar.title("Young Lord")
+    st.image("images/logo.png", width=180)
 
-st.sidebar.markdown("""
-### Navigation
+    st.markdown("## Young Lord")
 
-- Home
-- Weekly Nifty Outlook
-- Sector Rotation
-- Relative Strength
-- Fundamental Analysis
-- Current Affairs
-- Investment Ideas
-- Research Reports
-- Professional Services
-- Contact
-""")
+    selected = option_menu(
+        "Navigation",
+        [
+            "Home",
+            "Weekly Nifty Outlook",
+            "Sector Rotation",
+            "Relative Strength",
+            "Fundamental Analysis",
+            "Current Affairs",
+            "Investment Ideas",
+            "Research Reports",
+            "Professional Services",
+            "Contact"
+        ],
+        icons=[
+            "house",
+            "graph-up",
+            "arrow-repeat",
+            "bar-chart",
+            "briefcase",
+            "newspaper",
+            "lightbulb",
+            "file-earmark-text",
+            "gear",
+            "envelope"
+        ],
+        default_index=0
+    )
 
-# =========================
-# HERO
-# =========================
+# -------------------------------------------------
+# HERO BANNER
+# -------------------------------------------------
 
-st.image(
-    banner,
-    use_container_width=True
-)
+st.image("images/banner.png", use_container_width=True)
 
 st.markdown("""
 <div class="hero">
+<div class="hero-title">
+Young Lord Market View
+</div>
 
-<h1>Young Lord Market View</h1>
-
-<h3 class="gold">
+<div class="hero-sub">
 Research • Analyze • Automate
-</h3>
+</div>
 
-<p>
-Professional Market Research &
-Trading Technology Portal
-</p>
+<br>
 
+<div class="hero-desc">
+Professional Market Research & Trading Technology Portal
+</div>
 </div>
 """, unsafe_allow_html=True)
 
-# =========================
-# MARKET DASHBOARD
-# =========================
+# -------------------------------------------------
+# DASHBOARD
+# -------------------------------------------------
 
 st.markdown("## 📊 Market Pulse Dashboard")
 
@@ -127,13 +180,15 @@ c1,c2,c3,c4 = st.columns(4)
 with c1:
     st.metric(
         "NIFTY Trend",
-        "Bullish"
+        "Bullish",
+        "+2.3%"
     )
 
 with c2:
     st.metric(
         "Market Sentiment",
-        "Positive"
+        "Positive",
+        "+15%"
     )
 
 with c3:
@@ -148,140 +203,122 @@ with c4:
         "Moderate"
     )
 
-# =========================
+st.divider()
+
+# -------------------------------------------------
 # RESEARCH CATEGORIES
-# =========================
+# -------------------------------------------------
 
 st.markdown("## 📚 Research Categories")
 
-col1,col2,col3 = st.columns(3)
+c1,c2,c3 = st.columns(3)
 
-with col1:
-    st.info("Weekly Nifty Outlook")
-    st.info("Sector Rotation Analysis")
+with c1:
+    st.info("📈 Weekly Nifty Outlook")
+    st.info("🔄 Sector Rotation")
+    st.info("📊 Relative Strength")
 
-with col2:
-    st.info("Relative Strength Analysis")
-    st.info("Fundamental Analysis")
+with c2:
+    st.info("🏢 Fundamental Analysis")
+    st.info("📰 Current Affairs")
+    st.info("💡 Investment Ideas")
 
-with col3:
-    st.info("Current Affairs")
-    st.info("Investment Ideas")
+with c3:
+    st.info("📑 Research Reports")
+    st.info("⚙ Professional Services")
+    st.info("📬 Contact")
 
-# =========================
+# -------------------------------------------------
 # SERVICES
-# =========================
+# -------------------------------------------------
 
-st.markdown("## ⚙️ Professional Services")
+st.markdown("## ⚙ Professional Services")
 
 st.success("""
-We offer end-to-end Strategy Development Services including:
+We also offer end-to-end Strategy Development Services:
 
-✅ Python Development
+✅ Python Coding
 
 ✅ Pine Script Development
-
-✅ TradingView Automation
 
 ✅ API Integration
 
 ✅ Research & Backtesting
 
-✅ Stock Scanners
+✅ Algo Trading Solutions
 
 ✅ Dashboard Development
 
-✅ Algo Trading Solutions
-
 ✅ Custom Product Development
+
+Tailored to your trading and automation requirements.
 """)
 
-# =========================
+# -------------------------------------------------
 # REPORT ARCHIVE
-# =========================
+# -------------------------------------------------
 
-st.markdown("## 📁 Report Archive")
+st.markdown("## 📂 Report Archive")
 
-st.button("Weekly Nifty Outlook")
+report = st.selectbox(
+    "Select Report",
+    [
+        "Weekly Nifty Outlook",
+        "Sector Rotation Analysis",
+        "Relative Strength Analysis",
+        "Fundamental Analysis",
+        "Investment Ideas"
+    ]
+)
 
-st.button("Sector Rotation Report")
+st.info(f"Selected Report: {report}")
 
-st.button("Fundamental Research")
+st.button("📥 Download Report")
 
-st.button("Market Commentary")
-
-# =========================
-# LIVE MARKET
-# =========================
+# -------------------------------------------------
+# LIVE MARKET WIDGETS
+# -------------------------------------------------
 
 st.markdown("## 📈 Live Market Widgets")
 
-st.info(
-    "TradingView widgets will be added in the next upgrade."
-)
+st.info("""
+TradingView widgets will be added in the next upgrade.
+""")
 
-# =========================
+# -------------------------------------------------
 # NEWSLETTER
-# =========================
+# -------------------------------------------------
 
 st.markdown("## 📧 Newsletter")
 
 email = st.text_input(
-    "Enter Email"
+    "Enter Email Address"
 )
 
-if st.button("Subscribe"):
-    st.success(
-        "Subscription received."
-    )
+st.button("Subscribe")
 
-# =========================
+# -------------------------------------------------
 # CONTACT
-# =========================
+# -------------------------------------------------
 
 st.markdown("## 📞 Contact")
 
 name = st.text_input("Name")
 
-message = st.text_area(
-    "Message"
-)
+message = st.text_area("Message")
 
-if st.button("Send Inquiry"):
-    st.success(
-        "Inquiry submitted."
-    )
+st.button("Send Inquiry")
 
-# =========================
-# WHATSAPP
-# =========================
+st.success("""
+WhatsApp Integration Coming Soon
+""")
 
-st.markdown("""
-<a href="https://wa.me/919999999999"
-target="_blank">
-
-<button style="
-background:#25D366;
-color:white;
-padding:15px;
-border:none;
-border-radius:10px;
-font-size:18px;
-font-weight:bold;">
-
-WhatsApp Inquiry
-
-</button>
-
-</a>
-""", unsafe_allow_html=True)
-
-# =========================
+# -------------------------------------------------
 # FOOTER
-# =========================
+# -------------------------------------------------
 
-st.markdown("---")
+st.divider()
 
 st.caption(
-    "© Young Lord Market View | Professional Equity Market Research Portal"
+    "© Young Lord Market View | Research • Analyze • Automate"
 )
