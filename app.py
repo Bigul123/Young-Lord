@@ -162,12 +162,12 @@ def connect_google():
 
     secret = dict(st.secrets["gcp_service_account"])
 
-secret["private_key"] = secret["private_key"].replace("\\n", "\n")
+    secret["private_key"] = secret["private_key"].replace("\\n", "\n")
 
-creds = Credentials.from_service_account_info(
-    secret,
-    scopes=scopes
-)
+    creds = Credentials.from_service_account_info(
+        secret,
+        scopes=scopes
+    )
 
     gc = gspread.authorize(creds)
 
@@ -178,7 +178,6 @@ creds = Credentials.from_service_account_info(
     )
 
     return gc, drive_service
-
 
 gc, drive_service = connect_google()
 
