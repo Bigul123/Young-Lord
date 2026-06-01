@@ -1,28 +1,139 @@
+# =====================================================
+# YOUNG LORD MARKET VIEW V5
+# PART 1
+# IMPORTS + SETTINGS + GOOGLE SETUP
+# =====================================================
+
 import streamlit as st
-from streamlit_option_menu import option_menu
+import pandas as pd
+import gspread
 from PIL import Image
+from streamlit_option_menu import option_menu
+
+from google.oauth2.service_account import Credentials
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseUpload
+
+import io
+from datetime import datetime
 
 # =====================================================
-# SETTINGS
+# EDITABLE VARIABLES
 # =====================================================
 
-NIFTY_TREND = "Bullish"
-MARKET_SENTIMENT = "Positive"
-LEADING_SECTOR = "Capital Goods"
-RISK_LEVEL = "Moderate"
+# -------------------------
+# BRANDING
+# -------------------------
+
+COMPANY_NAME = "Young Lord Market View"
+
+TAGLINE = "Research • Analyze • Automate"
+
+COMPANY_DESCRIPTION = (
+    "Professional Market Research & Trading Technology Portal"
+)
+
+# -------------------------
+# CONTACT DETAILS
+# -------------------------
+
+CONTACT_EMAIL = "contact@younglordresearch.com"
+
+SUPPORT_EMAIL = "support@younglordresearch.com"
+
+PHONE_NUMBER = "+91 99999 99999"
 
 WHATSAPP_NUMBER = "919999999999"
-CONTACT_EMAIL = "contact@younglordresearch.com"
+
+CONTACT_ADDRESS = "Ujjain, Madhya Pradesh, India"
+
+# -------------------------
+# SOCIAL MEDIA
+# -------------------------
+
+LINKEDIN_URL = ""
+
+TWITTER_URL = ""
+
+TELEGRAM_URL = ""
+
+YOUTUBE_URL = ""
+
+INSTAGRAM_URL = ""
+
+# -------------------------
+# ADMIN
+# -------------------------
+
+ADMIN_PASSWORD = "younglord2026"
+
+# -------------------------
+# GOOGLE DRIVE
+# -------------------------
+
+GOOGLE_DRIVE_FOLDER_ID = (
+    "1ah1qjx7iaSn98ig-_LFMz19jVeezUBP9"
+)
+
+# -------------------------
+# GOOGLE SHEET
+# -------------------------
+
+GOOGLE_SHEET_ID = (
+    "1Cua2ID50Auw1pzlPls4lRSybu-Zuq50eHSUQFULvdYo"
+)
+
+REPORTS_SHEET = "Reports"
+
+LEADS_SHEET = "Leads"
+
+NEWSLETTER_SHEET = "Newsletter"
+
+# -------------------------
+# MARKET PULSE
+# -------------------------
+
+NIFTY_TREND = "Bullish"
+
+MARKET_SENTIMENT = "Positive"
+
+LEADING_SECTOR = "Capital Goods"
+
+RISK_LEVEL = "Moderate"
+
+# -------------------------
+# REPORT CATEGORIES
+# -------------------------
+
+REPORT_CATEGORIES = [
+
+    "Weekly Nifty Outlook",
+
+    "Sector Rotation",
+
+    "Relative Strength",
+
+    "Fundamental Analysis",
+
+    "Current Affairs",
+
+    "Investment Ideas",
+
+    "Research Reports",
+
+    "Professional Services"
+
+]
 
 # =====================================================
 # PAGE CONFIG
 # =====================================================
 
 st.set_page_config(
-    page_title="Young Lord Market View",
+    page_title=COMPANY_NAME,
     page_icon="📈",
     layout="wide",
-    initial_sidebar_state="auto"
+    initial_sidebar_state="expanded"
 )
 
 # =====================================================
@@ -30,14 +141,120 @@ st.set_page_config(
 # =====================================================
 
 logo = Image.open("images/logo.png")
+
 banner = Image.open("images/banner.png")
 
+DEFAULT_THUMBNAIL = (
+    "thumbnails/default_report.png"
+)
+
 # =====================================================
-# CSS
+# GOOGLE AUTH
+# =====================================================
+
+@st.cache_resource
+def connect_google():
+
+    scopes = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
+
+    creds = Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"],
+        scopes=scopes
+    )
+
+    gc = gspread.authorize(creds)
+
+    drive_service = build(
+        "drive",
+        "v3",
+        credentials=creds
+    )
+
+    return gc, drive_service
+
+
+gc, drive_service = connect_google()
+
+# =====================================================
+# OPEN GOOGLE SHEET
+# =====================================================
+
+@st.cache_resource
+def open_workbook():
+
+    return gc.open_by_key(
+        GOOGLE_SHEET_ID
+    )
+
+workbook = open_workbook()
+
+# =====================================================
+# WORKSHEETS
+# =====================================================
+
+reports_ws = workbook.worksheet(
+    REPORTS_SHEET
+)
+
+leads_ws = workbook.worksheet(
+    LEADS_SHEET
+)
+
+newsletter_ws = workbook.worksheet(
+    NEWSLETTER_SHEET
+)
+
+# =====================================================
+# HELPERS
+# =====================================================
+
+def add_lead(
+    name,
+    email,
+    phone,
+    subject,
+    message
+):
+
+    leads_ws.append_row([
+        datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S"
+        ),
+        name,
+        email,
+        phone,
+        subject,
+        message
+    ])
+
+def add_newsletter_email(
+    email
+):
+
+    newsletter_ws.append_row([
+        email,
+        datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S"
+        )
+    ])
+
+# =====================================================
+# END PART 1
+# =====================================================
+# =====================================================
+# V5 PART 2
+# PROFESSIONAL CSS + SIDEBAR + TICKER TAPE
 # =====================================================
 
 st.markdown("""
 <style>
+
+/* =====================================================
+   GLOBAL APP
+===================================================== */
 
 .stApp{
 background:linear-gradient(
@@ -48,20 +265,48 @@ background:linear-gradient(
 );
 }
 
-h1,h2,h3,h4,h5,h6{
-color:#FFD54F !important;
+/* =====================================================
+   REMOVE STREAMLIT HEADER
+===================================================== */
+
+header{
+visibility:hidden;
+height:0rem;
 }
 
-p,li,label,span{
+[data-testid="stHeader"]{
+background:transparent !important;
+height:0px !important;
+}
+
+.main .block-container{
+padding-top:0rem !important;
+margin-top:-2rem !important;
+}
+
+/* =====================================================
+   TEXT COLORS
+===================================================== */
+
+h1,h2,h3,h4,h5,h6{
+color:#FFD54F !important;
+font-weight:800 !important;
+}
+
+p,label,span,li{
 color:white !important;
 }
+
+/* =====================================================
+   SIDEBAR
+===================================================== */
 
 section[data-testid="stSidebar"]{
 background:linear-gradient(
 180deg,
-#00142E,
-#001F54,
-#002E73
+#00142E 0%,
+#001F54 50%,
+#002E73 100%
 );
 border-right:2px solid #FFD54F;
 }
@@ -70,17 +315,62 @@ section[data-testid="stSidebar"] *{
 color:white !important;
 }
 
+[data-testid="stSidebarNav"]{
+display:none;
+}
+
+/* =====================================================
+   DROPDOWNS
+===================================================== */
+
+.stSelectbox div[data-baseweb="select"] > div{
+background:#001F54 !important;
+color:white !important;
+border:1px solid #FFD54F !important;
+}
+
+.stSelectbox *{
+color:white !important;
+}
+
+/* =====================================================
+   INPUTS
+===================================================== */
+
+.stTextInput input,
+.stTextArea textarea{
+background:#001F54 !important;
+color:white !important;
+border:1px solid #FFD54F !important;
+}
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.stButton button{
+background:#FFD54F !important;
+color:#001B44 !important;
+font-weight:700 !important;
+border:none !important;
+border-radius:10px !important;
+}
+
+/* =====================================================
+   HERO
+===================================================== */
+
 .hero-box{
 background:#002A66;
 border:2px solid #FFD54F;
 border-radius:25px;
 padding:40px;
-margin-top:20px;
-margin-bottom:20px;
+margin-top:10px;
+margin-bottom:25px;
 }
 
 .hero-title{
-font-size:60px;
+font-size:64px;
 font-weight:900;
 color:white;
 }
@@ -96,69 +386,146 @@ font-size:22px;
 color:white;
 }
 
+/* =====================================================
+   SECTION TITLES
+===================================================== */
+
 .section-title{
 font-size:42px;
-font-weight:800;
+font-weight:900;
 color:#FFD54F;
-margin-top:20px;
+margin-top:15px;
 margin-bottom:20px;
 }
+
+/* =====================================================
+   CUSTOM CARDS
+===================================================== */
 
 .custom-card{
 background:#0B4F6C;
 padding:18px;
-border-radius:15px;
+border-radius:16px;
 border-left:5px solid #FFD54F;
 margin-bottom:12px;
-color:white;
 font-size:18px;
 font-weight:600;
+color:white;
 }
 
+/* =====================================================
+   METRICS
+===================================================== */
+
 [data-testid="metric-container"]{
-background:#073B4C;
-border:1px solid #FFD54F;
-border-radius:15px;
-padding:15px;
+background:#073B4C !important;
+border:1px solid #FFD54F !important;
+border-radius:18px !important;
+padding:18px !important;
 }
 
 [data-testid="stMetricLabel"]{
 color:white !important;
-font-size:18px !important;
+font-size:20px !important;
+font-weight:700 !important;
 }
 
 [data-testid="stMetricValue"]{
 color:#FFD54F !important;
-font-size:40px !important;
-font-weight:800 !important;
+font-size:42px !important;
+font-weight:900 !important;
 }
 
 [data-testid="stMetricDelta"]{
 color:#00FF88 !important;
+font-weight:700 !important;
 }
+
+/* =====================================================
+   REPORT CARDS
+===================================================== */
+
+.report-card{
+background:#002A66;
+border:1px solid #FFD54F;
+border-radius:16px;
+padding:15px;
+margin-bottom:20px;
+}
+
+/* =====================================================
+   FLOATING WHATSAPP
+===================================================== */
+
+.whatsapp-float{
+position:fixed;
+bottom:20px;
+right:20px;
+z-index:9999;
+}
+
+.whatsapp-float a{
+background:#25D366;
+padding:15px 18px;
+border-radius:50px;
+text-decoration:none;
+font-weight:700;
+color:white;
+box-shadow:0 0 15px rgba(0,0,0,0.3);
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
 
 @media (max-width:768px){
 
 .hero-title{
-font-size:36px;
+font-size:34px;
 }
 
 .hero-sub{
-font-size:22px;
+font-size:20px;
 }
 
 .hero-desc{
 font-size:16px;
 }
 
+.section-title{
+font-size:28px;
+}
+
 [data-testid="stSidebar"]{
-min-width:300px !important;
+min-width:280px !important;
+max-width:280px !important;
+}
+
+[data-testid="metric-container"]{
+margin-bottom:10px !important;
 }
 
 }
 
 </style>
 """, unsafe_allow_html=True)
+
+# =====================================================
+# FLOATING WHATSAPP BUTTON
+# =====================================================
+
+st.markdown(
+    f"""
+    <div class="whatsapp-float">
+        <a href="https://wa.me/{WHATSAPP_NUMBER}"
+           target="_blank">
+           💬 WhatsApp
+        </a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 # =====================================================
 # SIDEBAR
 # =====================================================
@@ -167,59 +534,53 @@ with st.sidebar:
 
     st.image(
         logo,
-        width=260
+        width=300
     )
 
-    st.markdown("## Young Lord")
+    st.markdown(
+        f"## {COMPANY_NAME}"
+    )
+
+    st.markdown(
+        f"**{TAGLINE}**"
+    )
 
     selected = option_menu(
-        menu_title="Navigation",
+        menu_title=None,
         options=[
             "Home",
-            "Weekly Nifty Outlook",
-            "Sector Rotation",
-            "Relative Strength",
-            "Fundamental Analysis",
-            "Current Affairs",
-            "Investment Ideas",
             "Research Reports",
             "Professional Services",
+            "Admin Panel",
             "Contact"
         ],
         icons=[
             "house",
-            "graph-up",
-            "arrow-repeat",
-            "bar-chart",
-            "briefcase",
-            "newspaper",
-            "lightbulb",
             "file-earmark-text",
             "gear",
+            "shield-lock",
             "telephone"
         ],
-        menu_icon="cast",
         default_index=0
     )
 
 # =====================================================
-# MOBILE QUICK MENU
+# TRADINGVIEW TICKER TAPE
 # =====================================================
 
-st.selectbox(
-    "Quick Navigation",
-    [
-        "Home",
-        "Weekly Nifty Outlook",
-        "Sector Rotation",
-        "Relative Strength",
-        "Fundamental Analysis",
-        "Current Affairs",
-        "Investment Ideas",
-        "Research Reports",
-        "Professional Services",
-        "Contact"
-    ]
+st.components.v1.html(
+"""
+<script type="module"
+src="https://widgets.tradingview-widget.com/w/en/tv-ticker-tape.js">
+</script>
+
+<tv-ticker-tape
+symbols="NSE:NIFTY,NSE:BANKNIFTY,NSE:SBIN,NSE:ICICIBANK,NSE:HDFCBANK,NSE:TCS,NSE:INFY"
+show-hover
+theme="dark">
+</tv-ticker-tape>
+""",
+height=60
 )
 
 # =====================================================
@@ -232,33 +593,44 @@ st.image(
 )
 
 # =====================================================
-# HERO SECTION
+# HERO
 # =====================================================
 
-st.markdown("""
+st.markdown(
+f"""
 <div class="hero-box">
 
 <div class="hero-title">
-Young Lord Market View
+{COMPANY_NAME}
 </div>
 
 <br>
 
 <div class="hero-sub">
-Research • Analyze • Automate
+{TAGLINE}
 </div>
 
 <br>
 
 <div class="hero-desc">
-Professional Market Research & Trading Technology Portal
+{COMPANY_DESCRIPTION}
 </div>
 
 </div>
-""", unsafe_allow_html=True)
+""",
+unsafe_allow_html=True
+)
 
 # =====================================================
-# MARKET PULSE DASHBOARD
+# END PART 2
+# =====================================================
+# =====================================================
+# V5 PART 3
+# MARKET PULSE + REPORT ARCHIVE
+# =====================================================
+
+# =====================================================
+# MARKET PULSE
 # =====================================================
 
 st.markdown(
@@ -266,37 +638,132 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-col1, col2 = st.columns(2)
+c1, c2 = st.columns(2)
 
-with col1:
+with c1:
     st.metric(
-        label="NIFTY Trend",
-        value=NIFTY_TREND,
-        delta="+2.3%"
+        "NIFTY Trend",
+        NIFTY_TREND,
+        "+2.3%"
     )
 
-with col2:
+with c2:
     st.metric(
-        label="Market Sentiment",
-        value=MARKET_SENTIMENT,
-        delta="+15%"
+        "Market Sentiment",
+        MARKET_SENTIMENT,
+        "+15%"
     )
 
-col3, col4 = st.columns(2)
+c3, c4 = st.columns(2)
 
-with col3:
+with c3:
     st.metric(
-        label="Leading Sector",
-        value=LEADING_SECTOR
+        "Leading Sector",
+        LEADING_SECTOR
     )
 
-with col4:
+with c4:
     st.metric(
-        label="Risk Level",
-        value=RISK_LEVEL
+        "Risk Level",
+        RISK_LEVEL
     )
 
 st.divider()
+
+# =====================================================
+# TRADINGVIEW MARKET OVERVIEW
+# =====================================================
+
+st.markdown(
+    "<div class='section-title'>📈 Live Market Overview</div>",
+    unsafe_allow_html=True
+)
+
+st.components.v1.html(
+"""
+<div class="tradingview-widget-container">
+<div class="tradingview-widget-container__widget"></div>
+
+<script type="text/javascript"
+src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js"
+async>
+{
+"colorTheme":"dark",
+"dateRange":"12M",
+"locale":"en",
+"isTransparent":false,
+"showFloatingTooltip":true,
+"width":"100%",
+"height":"700",
+"showSymbolLogo":true,
+"showChart":true,
+
+"tabs":[
+
+{
+"title":"Indices",
+"symbols":[
+{"s":"NSE:NIFTY"},
+{"s":"NSE:BANKNIFTY"}
+]
+},
+
+{
+"title":"Banking",
+"symbols":[
+{"s":"NSE:HDFCBANK"},
+{"s":"NSE:ICICIBANK"},
+{"s":"NSE:SBIN"},
+{"s":"NSE:AXISBANK"}
+]
+},
+
+{
+"title":"IT",
+"symbols":[
+{"s":"NSE:TCS"},
+{"s":"NSE:INFY"},
+{"s":"NSE:WIPRO"}
+]
+},
+
+{
+"title":"Auto",
+"symbols":[
+{"s":"NSE:MARUTI"},
+{"s":"NSE:TATAMOTORS"},
+{"s":"NSE:M&M"}
+]
+},
+
+{
+"title":"FMCG",
+"symbols":[
+{"s":"NSE:ITC"},
+{"s":"NSE:HINDUNILVR"},
+{"s":"NSE:NESTLEIND"}
+]
+},
+
+{
+"title":"Energy",
+"symbols":[
+{"s":"NSE:RELIANCE"},
+{"s":"NSE:ONGC"},
+{"s":"NSE:POWERGRID"}
+]
+}
+
+]
+}
+</script>
+</div>
+""",
+height=750
+)
+
+st.divider()
+
 # =====================================================
 # RESEARCH CATEGORIES
 # =====================================================
@@ -306,40 +773,20 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-col1, col2, col3 = st.columns(3)
+cols = st.columns(4)
 
-with col1:
-    st.markdown(
-        "<div class='custom-card'>📈 Weekly Nifty Outlook</div>",
-        unsafe_allow_html=True
-    )
+for i, category in enumerate(REPORT_CATEGORIES):
 
-    st.markdown(
-        "<div class='custom-card'>🔄 Sector Rotation Analysis</div>",
-        unsafe_allow_html=True
-    )
+    with cols[i % 4]:
 
-with col2:
-    st.markdown(
-        "<div class='custom-card'>📊 Relative Strength Analysis</div>",
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        "<div class='custom-card'>🏦 Fundamental Analysis</div>",
-        unsafe_allow_html=True
-    )
-
-with col3:
-    st.markdown(
-        "<div class='custom-card'>📰 Current Affairs</div>",
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        "<div class='custom-card'>💡 Investment Ideas</div>",
-        unsafe_allow_html=True
-    )
+        st.markdown(
+            f"""
+            <div class='custom-card'>
+            📘 {category}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 st.divider()
 
@@ -352,65 +799,49 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.info(
-    "We offer end-to-end Strategy Development Services, including Python Coding, Pine Script Development, API Integration, Research & Backtesting, Trading Automation, Dashboard Development, and Custom Product Development."
-)
+services = [
 
-svc1, svc2 = st.columns(2)
+    "Python Development",
+    "Pine Script Development",
+    "TradingView Automation",
+    "Broker API Integration",
+    "Algo Trading Solutions",
 
-with svc1:
+    "Equity Research",
+    "Backtesting Frameworks",
+    "Sector Rotation Models",
+    "Relative Strength Models",
+    "Custom Product Development"
 
-    st.markdown(
-        "<div class='custom-card'>✅ Python Development</div>",
-        unsafe_allow_html=True
-    )
+]
 
-    st.markdown(
-        "<div class='custom-card'>✅ Pine Script Development</div>",
-        unsafe_allow_html=True
-    )
+svc_col1, svc_col2 = st.columns(2)
 
-    st.markdown(
-        "<div class='custom-card'>✅ TradingView Automation</div>",
-        unsafe_allow_html=True
-    )
+for i, service in enumerate(services):
 
-    st.markdown(
-        "<div class='custom-card'>✅ Broker API Integration</div>",
-        unsafe_allow_html=True
-    )
+    if i % 2 == 0:
 
-    st.markdown(
-        "<div class='custom-card'>✅ Algo Trading Solutions</div>",
-        unsafe_allow_html=True
-    )
+        with svc_col1:
+            st.markdown(
+                f"""
+                <div class='custom-card'>
+                ✅ {service}
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-with svc2:
+    else:
 
-    st.markdown(
-        "<div class='custom-card'>✅ Equity Research</div>",
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        "<div class='custom-card'>✅ Backtesting Frameworks</div>",
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        "<div class='custom-card'>✅ Relative Strength Analysis</div>",
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        "<div class='custom-card'>✅ Sector Rotation Models</div>",
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        "<div class='custom-card'>✅ Custom Product Development</div>",
-        unsafe_allow_html=True
-    )
+        with svc_col2:
+            st.markdown(
+                f"""
+                <div class='custom-card'>
+                ✅ {service}
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
 st.divider()
 
@@ -419,182 +850,579 @@ st.divider()
 # =====================================================
 
 st.markdown(
-    "<div class='section-title'>📁 Report Archive</div>",
+    "<div class='section-title'>📁 Research Report Archive</div>",
     unsafe_allow_html=True
 )
 
-report_category = st.selectbox(
-    "Select Report Category",
-    [
-        "Weekly Nifty Outlook",
-        "Sector Rotation Reports",
-        "Relative Strength Reports",
-        "Fundamental Analysis",
-        "Current Affairs",
-        "Investment Ideas"
-    ]
+search_text = st.text_input(
+    "🔍 Search Reports"
 )
 
-st.markdown(
-    f"<div class='custom-card'>Selected Category: {report_category}</div>",
-    unsafe_allow_html=True
+selected_category = st.selectbox(
+    "Select Category",
+    ["All"] + REPORT_CATEGORIES
 )
 
-st.success(
-    "Upload PDF reports inside the reports folder. Future versions will automatically display downloadable report archives here."
-)
+# =====================================================
+# LOAD REPORTS FROM GOOGLE SHEET
+# =====================================================
+
+try:
+
+    reports_data = reports_ws.get_all_records()
+
+    reports_df = pd.DataFrame(
+        reports_data
+    )
+
+except:
+
+    reports_df = pd.DataFrame()
+
+# =====================================================
+# FILTER REPORTS
+# =====================================================
+
+if not reports_df.empty:
+
+    if search_text:
+
+        reports_df = reports_df[
+            reports_df["Title"]
+            .astype(str)
+            .str.contains(
+                search_text,
+                case=False,
+                na=False
+            )
+        ]
+
+    if selected_category != "All":
+
+        reports_df = reports_df[
+            reports_df["Category"]
+            == selected_category
+        ]
+
+# =====================================================
+# DISPLAY REPORTS
+# =====================================================
+
+if reports_df.empty:
+
+    st.info(
+        "No reports found."
+    )
+
+else:
+
+    for _, row in reports_df.iterrows():
+
+        card1, card2 = st.columns(
+            [1,3]
+        )
+
+        with card1:
+
+            st.image(
+                DEFAULT_THUMBNAIL,
+                use_container_width=True
+            )
+
+        with card2:
+
+            st.markdown(
+                f"""
+                <div class='report-card'>
+
+                <h3>{row['Title']}</h3>
+
+                <p>
+                Category:
+                {row['Category']}
+                </p>
+
+                <p>
+                Date:
+                {row['Date']}
+                </p>
+
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            if str(row.get(
+                "PDF_Link",
+                ""
+            )).strip():
+
+                st.link_button(
+                    "📄 Open Report",
+                    row["PDF_Link"]
+                )
 
 st.divider()
+
 # =====================================================
-# LIVE MARKET WIDGETS
+# END PART 3
+# =====================================================
+# =====================================================
+# V5 PART 4
+# ADMIN PANEL
 # =====================================================
 
-st.markdown(
-    "<div class='section-title'>📈 Live Market Widgets</div>",
-    unsafe_allow_html=True
-)
+if selected == "Admin Panel":
 
-st.info(
-    "TradingView live widgets will be integrated in the next upgrade."
-)
-
-widget_col1, widget_col2 = st.columns(2)
-
-with widget_col1:
     st.markdown(
-        "<div class='custom-card'>📊 NIFTY 50 Live Widget (Coming Soon)</div>",
+        "<div class='section-title'>🔐 Admin Panel</div>",
         unsafe_allow_html=True
     )
 
-with widget_col2:
-    st.markdown(
-        "<div class='custom-card'>🏦 BANKNIFTY Live Widget (Coming Soon)</div>",
-        unsafe_allow_html=True
+    admin_password = st.text_input(
+        "Enter Admin Password",
+        type="password"
     )
 
+    if admin_password != ADMIN_PASSWORD:
+
+        st.warning(
+            "Admin access required."
+        )
+
+    else:
+
+        st.success(
+            "Admin Access Granted"
+        )
+
+        st.markdown("### Upload Research Report")
+
+        report_title = st.text_input(
+            "Report Title"
+        )
+
+        report_category = st.selectbox(
+            "Category",
+            REPORT_CATEGORIES
+        )
+
+        report_date = st.date_input(
+            "Report Date"
+        )
+
+        uploaded_pdf = st.file_uploader(
+            "Upload PDF",
+            type=["pdf"]
+        )
+
+        uploaded_thumbnail = st.file_uploader(
+            "Upload Thumbnail (Optional)",
+            type=["png", "jpg", "jpeg"]
+        )
+
+        # =====================================================
+        # GOOGLE DRIVE UPLOAD FUNCTION
+        # =====================================================
+
+        def upload_to_drive(
+            file_bytes,
+            filename,
+            mime_type
+        ):
+
+            file_metadata = {
+                "name": filename,
+                "parents": [
+                    GOOGLE_DRIVE_FOLDER_ID
+                ]
+            }
+
+            media = MediaIoBaseUpload(
+                io.BytesIO(file_bytes),
+                mimetype=mime_type,
+                resumable=True
+            )
+
+            uploaded_file = (
+                drive_service.files()
+                .create(
+                    body=file_metadata,
+                    media_body=media,
+                    fields="id"
+                )
+                .execute()
+            )
+
+            file_id = uploaded_file["id"]
+
+            drive_service.permissions().create(
+                fileId=file_id,
+                body={
+                    "type":"anyone",
+                    "role":"reader"
+                }
+            ).execute()
+
+            file_link = (
+                f"https://drive.google.com/file/d/{file_id}/view"
+            )
+
+            return file_link
+
+        # =====================================================
+        # SUBMIT REPORT
+        # =====================================================
+
+        if st.button(
+            "🚀 Upload Report"
+        ):
+
+            if (
+                not report_title
+                or uploaded_pdf is None
+            ):
+
+                st.error(
+                    "Title and PDF are required."
+                )
+
+            else:
+
+                try:
+
+                    # ---------------------------------
+                    # PDF Upload
+                    # ---------------------------------
+
+                    pdf_link = upload_to_drive(
+                        uploaded_pdf.getvalue(),
+                        uploaded_pdf.name,
+                        "application/pdf"
+                    )
+
+                    # ---------------------------------
+                    # THUMBNAIL UPLOAD
+                    # ---------------------------------
+
+                    thumbnail_link = ""
+
+                    if uploaded_thumbnail:
+
+                        thumbnail_link = upload_to_drive(
+                            uploaded_thumbnail.getvalue(),
+                            uploaded_thumbnail.name,
+                            uploaded_thumbnail.type
+                        )
+
+                    # ---------------------------------
+                    # GOOGLE SHEET UPDATE
+                    # ---------------------------------
+
+                    reports_ws.append_row([
+
+                        report_title,
+
+                        report_category,
+
+                        report_date.strftime(
+                            "%Y-%m-%d"
+                        ),
+
+                        pdf_link,
+
+                        thumbnail_link,
+
+                        "Active"
+
+                    ])
+
+                    st.success(
+                        "Report Uploaded Successfully."
+                    )
+
+                    st.balloons()
+
+                except Exception as e:
+
+                    st.error(
+                        f"Upload Failed: {e}"
+                    )
+
 st.divider()
+
+# =====================================================
+# END PART 4
+# =====================================================
+# =====================================================
+# V5 PART 5
+# CONTACT + NEWSLETTER + FOOTER
+# =====================================================
 
 # =====================================================
 # NEWSLETTER
 # =====================================================
 
-st.markdown(
-    "<div class='section-title'>📧 Newsletter</div>",
-    unsafe_allow_html=True
-)
+if selected != "Admin Panel":
 
-newsletter_email = st.text_input(
-    "Enter your email to receive research updates"
-)
-
-if st.button("Subscribe"):
-    st.success(
-        f"Thank you! Newsletter subscription received for: {newsletter_email}"
+    st.markdown(
+        "<div class='section-title'>📧 Newsletter</div>",
+        unsafe_allow_html=True
     )
 
-st.divider()
+    newsletter_email = st.text_input(
+        "Enter your email to receive research updates"
+    )
+
+    if st.button(
+        "Subscribe To Newsletter"
+    ):
+
+        if newsletter_email:
+
+            try:
+
+                add_newsletter_email(
+                    newsletter_email
+                )
+
+                st.success(
+                    "Successfully subscribed."
+                )
+
+            except Exception as e:
+
+                st.error(
+                    f"Error: {e}"
+                )
+
+        else:
+
+            st.warning(
+                "Please enter email."
+            )
+
+    st.divider()
 
 # =====================================================
 # CONTACT
 # =====================================================
 
-st.markdown(
-    "<div class='section-title'>📞 Contact</div>",
-    unsafe_allow_html=True
-)
-
-contact_col1, contact_col2 = st.columns(2)
-
-with contact_col1:
+if selected == "Contact":
 
     st.markdown(
-        f"""
-        <div class='custom-card'>
-        📧 Email<br><br>
-        {CONTACT_EMAIL}
-        </div>
-        """,
+        "<div class='section-title'>📞 Contact</div>",
         unsafe_allow_html=True
     )
 
-with contact_col2:
+    info_col1, info_col2 = st.columns(2)
+
+    with info_col1:
+
+        st.markdown(
+            f"""
+            <div class='custom-card'>
+
+            📧 Email
+
+            <br><br>
+
+            {CONTACT_EMAIL}
+
+            <br><br>
+
+            {SUPPORT_EMAIL}
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    with info_col2:
+
+        st.markdown(
+            f"""
+            <div class='custom-card'>
+
+            📱 WhatsApp
+
+            <br><br>
+
+            +{WHATSAPP_NUMBER}
+
+            <br><br>
+
+            {PHONE_NUMBER}
+
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     st.markdown(
-        f"""
-        <div class='custom-card'>
-        📱 WhatsApp<br><br>
-        +{WHATSAPP_NUMBER}
-        </div>
-        """,
-        unsafe_allow_html=True
+        "### Send Inquiry"
     )
 
-st.markdown("### Send Inquiry")
-
-name = st.text_input("Name")
-email = st.text_input("Email")
-message = st.text_area("Message")
-
-if st.button("Submit Inquiry"):
-    st.success(
-        "Thank you. Your inquiry has been received."
+    lead_name = st.text_input(
+        "Name"
     )
 
-st.divider()
+    lead_email = st.text_input(
+        "Email"
+    )
 
-# =====================================================
-# WHATSAPP BUTTON
-# =====================================================
+    lead_phone = st.text_input(
+        "Phone"
+    )
 
-whatsapp_url = f"https://wa.me/{WHATSAPP_NUMBER}"
+    lead_subject = st.text_input(
+        "Subject"
+    )
 
-st.markdown(
-    f"""
-    <a href="{whatsapp_url}" target="_blank">
-        <button style="
-            background:#25D366;
-            color:white;
-            border:none;
-            padding:14px 28px;
-            border-radius:10px;
-            font-size:18px;
-            font-weight:700;
-            cursor:pointer;">
-            💬 WhatsApp Inquiry
-        </button>
-    </a>
-    """,
-    unsafe_allow_html=True
-)
+    lead_message = st.text_area(
+        "Message"
+    )
 
-st.divider()
+    if st.button(
+        "Submit Inquiry"
+    ):
+
+        if (
+            lead_name
+            and lead_email
+            and lead_message
+        ):
+
+            try:
+
+                add_lead(
+                    lead_name,
+                    lead_email,
+                    lead_phone,
+                    lead_subject,
+                    lead_message
+                )
+
+                st.success(
+                    "Inquiry submitted successfully."
+                )
+
+            except Exception as e:
+
+                st.error(
+                    f"Error: {e}"
+                )
+
+        else:
+
+            st.warning(
+                "Please complete required fields."
+            )
+
+    st.divider()
 
 # =====================================================
 # FOOTER
 # =====================================================
 
 st.markdown(
-    """
+    f"""
     <center>
 
     <h4 style='color:#FFD54F;'>
-    Young Lord Market View
+
+    {COMPANY_NAME}
+
     </h4>
 
     <p style='color:white;'>
-    Research • Analyze • Automate
+
+    {TAGLINE}
+
     </p>
 
     <p style='color:#B8C7E0;'>
-    Equity Research | Sector Rotation | Relative Strength |
-    Trading Technology | Strategy Development
+
+    Equity Research |
+    Sector Rotation |
+    Relative Strength |
+    Trading Technology |
+    Strategy Development
+
     </p>
 
     <p style='color:#8EA9D6;'>
-    © 2026 Young Lord Market View. All Rights Reserved.
+
+    📧 {CONTACT_EMAIL}
+
+    <br>
+
+    📱 +{WHATSAPP_NUMBER}
+
+    <br>
+
+    📍 {CONTACT_ADDRESS}
+
+    </p>
+
+    <p style='color:#8EA9D6;'>
+
+    © 2026 {COMPANY_NAME}
+
+    All Rights Reserved.
+
     </p>
 
     </center>
     """,
     unsafe_allow_html=True
 )
+
+# =====================================================
+# FINAL NOTES
+# =====================================================
+
+"""
+V5 COMPLETE
+
+FEATURES INCLUDED:
+
+✅ Editable Variables
+
+✅ Professional Sidebar
+
+✅ Mobile Responsive Design
+
+✅ White Space Fix
+
+✅ Dropdown Visibility Fix
+
+✅ TradingView Ticker Tape
+
+✅ TradingView Market Overview
+
+✅ Google Drive Integration
+
+✅ Google Sheets Integration
+
+✅ Searchable Report Archive
+
+✅ Category Filters
+
+✅ Admin Upload Panel
+
+✅ PDF Upload
+
+✅ Thumbnail Upload
+
+✅ Contact Leads Database
+
+✅ Newsletter Database
+
+✅ Floating WhatsApp Button
+
+✅ Default Thumbnail Fallback
+
+✅ Professional Footer
+
+"""
