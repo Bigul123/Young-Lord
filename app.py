@@ -160,10 +160,14 @@ def connect_google():
         "https://www.googleapis.com/auth/drive"
     ]
 
-    creds = Credentials.from_service_account_info(
-        st.secrets["gcp_service_account"],
-        scopes=scopes
-    )
+    secret = dict(st.secrets["gcp_service_account"])
+
+secret["private_key"] = secret["private_key"].replace("\\n", "\n")
+
+creds = Credentials.from_service_account_info(
+    secret,
+    scopes=scopes
+)
 
     gc = gspread.authorize(creds)
 
